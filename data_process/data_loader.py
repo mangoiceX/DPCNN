@@ -88,6 +88,8 @@ def process_data(file_name_pos, file_name_neg):
     return setences_list_pos, setences_list_neg
 
 
+
+
 if __name__ == '__main__':
     file_name_pos = '../data/rt-polaritydata/rt-polarity.pos'
     file_name_neg = '../data/rt-polaritydata/rt-polarity.neg'
