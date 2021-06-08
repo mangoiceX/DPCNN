@@ -2,7 +2,7 @@
 Author: xmh
 Date: 2021-06-08 10:46:11
 LastEditors: xmh
-LastEditTime: 2021-06-08 19:44:38
+LastEditTime: 2021-06-08 20:12:59
 Description: 
 FilePath: \DPCNN\data_process\data_loader.py
 '''
@@ -20,12 +20,6 @@ with open('../data/corncob_lowercase.txt') as f:
     for line in f:
         line = line.rstrip()
         english_dictionary.append(line)
-        
-# print(stop_words)
-# if "you'll" in stop_words:
-#     print("exsit")
-# else:
-# 去除特殊符号
 
 
 # 去除停用词
@@ -51,8 +45,6 @@ def process_text(text:str, wordnet_lemmatizer)->list:
     text = list(filter(lambda x: x in english_dictionary, text))
     # 去除停用词
     # text = remove_stop_words(text, wordnet_lemmatizer)  # 删除之后，单词量大大减少，但是像like这种就不方便区分他只介词还是动词
-    # 分词
-    # token_words = word_tokenize(text)
     
     return text
 
@@ -92,7 +84,7 @@ def process_data(file_name_pos, file_name_neg):
     # X_test, X_valid, y_valid, y_valid = train_test_split(X_test, y_test, test_size=0.2, shuffle=True, random_state=0, stratify=labels)
 
     # return X_train, X_test, X_valid, y_train, y_valid, y_test
-
+ 
     return setences_list_pos, setences_list_neg
 
 
