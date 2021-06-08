@@ -2,7 +2,7 @@
 Author: xmh
 Date: 2021-06-08 10:46:11
 LastEditors: xmh
-LastEditTime: 2021-06-08 17:29:55
+LastEditTime: 2021-06-08 19:44:38
 Description: 
 FilePath: \DPCNN\data_process\data_loader.py
 '''
@@ -30,8 +30,6 @@ with open('../data/corncob_lowercase.txt') as f:
 
 # 去除停用词
 def remove_stop_words(text, wordnet_lemmatizer):
-    # text = text.split(' ')
-    # print(text)
     text = list(filter(lambda x: x not in stop_words, text))
     text = list(map(wordnet_lemmatizer.lemmatize, text))  # 词形统一
     # text = ''.join(text)
@@ -58,21 +56,22 @@ def process_text(text:str, wordnet_lemmatizer)->list:
     
     return text
 
+
 def process_file(file_name:str):
     setences_list = []
     wordnet_lemmatizer = WordNetLemmatizer()
-    cnt = 0
+    # cnt = 0
     with open(file_name, 'r', encoding='Windows-1252') as f:
         for line in f:
             line = line.rstrip()
             text = process_text(line, wordnet_lemmatizer)
             setences_list.append(text)
-            cnt += 1
-            if cnt > 20:
-                break
-    
-    
+            # cnt += 1
+            # if cnt > 20:
+            #     break
+
     return setences_list
+
 
 def process_data(file_name_pos, file_name_neg):
     
@@ -104,15 +103,15 @@ if __name__ == '__main__':
     file_name_neg_output = '../data/rt-polaritydata/rt-polarity_processed.neg'
     setences_list_pos, setences_list_neg = process_data(file_name_pos, file_name_neg)
     
-    print(setences_list_pos[:10])
-    # with open(file_name_pos_output) as f:
-    #     for li in setences_list_pos:
-    #         f.write(li)
-    #         f.write('\n')
-    # with open(file_name_neg_output) as f:
-    #     for li in setences_list_neg:
-    #         f.write(li)
-    #         f.write('\n')
+    # print(setences_list_pos[:10])
+    with open(file_name_pos_output, 'w') as f:
+        for li in setences_list_pos:
+            f.write(' '.join(li))
+            f.write('\n')
+    with open(file_name_neg_output, 'w') as f:
+        for li in setences_list_neg:
+            f.write(' '.join(li))
+            f.write('\n')
     
     
 
