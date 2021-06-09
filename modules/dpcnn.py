@@ -2,7 +2,7 @@
 Author: xmh
 Date: 2021-06-08 20:20:42
 LastEditors: xmh
-LastEditTime: 2021-06-09 12:06:19
+LastEditTime: 2021-06-09 12:09:42
 Description: 
 FilePath: \DPCNN\modules\dpcnn.py
 '''
@@ -39,7 +39,7 @@ class DPCNN(nn.Module):
         x = self.conv(self.act_fun(x))  # 
         x = x + region_word_embeddings  # 残差连接
         
-        while x.size()[2] > 2:
+        while x.size()[2] > 2:  # 知道num_filter的数量减少到1
             x = self._block(x)
         
         x = x.view(config.batch_size, 2*config.num_filter)  # [batch_size, 2, num_filter, 1]
