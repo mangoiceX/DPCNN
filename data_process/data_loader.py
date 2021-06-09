@@ -9,7 +9,7 @@ FilePath: \DPCNN\data_process\data_loader.py
 
 from nltk.corpus import stopwords, wordnet
 from nltk.stem import WordNetLemmatizer
-from nltk import word_tokenize
+from nltk import word_tokenize, pos_tag
 from sklearn.model_selection import train_test_split
 
 
@@ -25,7 +25,7 @@ with open('../data/corncob_lowercase.txt') as f:
 # 去除停用词
 def remove_stop_words(text, wordnet_lemmatizer):
     text = list(filter(lambda x: x not in stop_words, text))
-    text = list(map(wordnet_lemmatizer.lemmatize, text))  # 词形统一
+    # text = list(map(wordnet_lemmatizer.lemmatize, text))  # 词形统一
     # text = ''.join(text)
 
     return text
@@ -33,6 +33,18 @@ def remove_stop_words(text, wordnet_lemmatizer):
 # 分词
 # token_words = word_tokenize("it's a apple.")
 # print(token_words)
+# 获取单词的词性
+def get_wordnet_pos(tag):
+    if tag.startswith('J'):
+        return wordnet.ADJ
+    elif tag.startswith('V'):
+        return wordnet.VERB
+    elif tag.startswith('N'):
+        return wordnet.NOUN
+    elif tag.startswith('R'):
+        return wordnet.ADV
+    else:
+        return None
 
 def process_text(text:str, wordnet_lemmatizer)->list:
     # 去除特殊符号
@@ -42,11 +54,19 @@ def process_text(text:str, wordnet_lemmatizer)->list:
     # 直接只保留英文单词（一步解决前面两个问题）
     text = text.split()
     # text = list(filter(wordnet.synsets, text))  # 这里太慢了
-    text = list(filter(lambda x: x in english_dictionary, text))
+    text = list(filter(lambda x: x in english_dictionary, text))  # 去除词典外的词语
+    text = list(filter(lambda x: x not in stop_words, text))  # 去除停用词
+    text = ' '.join(text)
+    tokens = word_tokenize(text)  # 分词
+    tagged_sent = pos_tag(tokens)  # 获取单词词性
+    lemmas_sent = []
+    for tag in tagged_sent:
+        wordnet_pos = get_wordnet_pos(tag[1]) or wordnet.NOUN
+        lemmas_sent.append(wordnet_lemmatizer.lemmatize(tag[0], pos=wordnet_pos))  # 词形还原
     # 去除停用词
     # text = remove_stop_words(text, wordnet_lemmatizer)  # 删除之后，单词量大大减少，但是像like这种就不方便区分他只介词还是动词
     
-    return text
+    return lemmas_sent
 
 
 def process_file(file_name:str):
