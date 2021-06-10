@@ -3,9 +3,11 @@ Author: xmh
 Date: 2021-06-08 20:45:03
 LastEditors: xmh
 LastEditTime: 2021-06-09 12:06:53
-Description: 
-FilePath: \DPCNN\utils\config.py
+Description:
+FilePath: \DPCNN\\utils\\config.py
 '''
+
+import torch
 
 class Config:
 
@@ -26,6 +28,13 @@ class Config:
                 cnt += 1
         self.vocab_size = cnt
         self.epochs = 10
+        self.lr = 0.001
+
+        if torch.cuda.is_available():
+            self.USE_CUDA = True
+        else:
+            self.USE_CUDA = False
+
 
 config = Config()
 

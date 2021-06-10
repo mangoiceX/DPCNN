@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from utils.config import config, USE_CUDA
+from utils.config import config
 from tqdm import tqdm
 from modules.dpcnn import DPCNN
 import torch.nn.functional as F
@@ -17,11 +17,11 @@ class Trainer:
         self.model = DPCNN()
 
         # 设置优化器
-        self.optimizer = torch.optim.Adam(self.model.prameters(), lr=config.lr)
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=config.lr)
         # 学习率调控
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.5, patience=8, min_lr=1e-5, verbose=True)
 
-        if USE_CUDA:
+        if config.USE_CUDA:
             self.model = self.model.cuda()
     
     def print_model(self):
@@ -65,7 +65,7 @@ class Trainer:
         correct_total = 0
         for i, data_item in pbar:
             y_predict = self.model(data_item['text_ids'])
-            loss = self.get_loss(results, data_item['label'])
+            loss = self.get_loss(y_predict, data_item['label'])
             loss_total += float(loss)
             for i, j in zip(y_predict, data_item['label']):
                 correct_total += (i == j)
@@ -81,7 +81,7 @@ class Trainer:
         correct_total = 0
         for i, data_item in pbar:
             y_predict = self.model(data_item['text_ids'])
-            loss = self.get_loss(results, data_item['label'])
+            loss = self.get_loss(y_predict, data_item['label'])
             loss_total += float(loss)
             for i, j in zip(y_predict, data_item['label']):
                 correct_total += (i == j)

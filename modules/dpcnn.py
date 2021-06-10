@@ -26,12 +26,12 @@ class DPCNN(nn.Module):
         self.max_pool = nn.MaxPool2d(kernel_size=(3, 1), stride=2)
         self.act_fun = nn.ReLU()
         self.fc = nn.Linear(config.num_filter, config.num_rel)
-        self.padding0 = nn.ZeroPad2d(0, 0, 1, 1)
+        self.padding0 = nn.ZeroPad2d((0, 0, 1, 1))
         self.pooling = nn.MaxPool2d(kernel_size=(3, 1), stride=2)
 
     def forward(self, data_item):
 
-        word_embeddings = self.embeddings(data_item['text'])  # [batch_size, seq_len, embedding_dim]
+        word_embeddings = self.embeddings(data_item.to(torch.int64))  # [batch_size, seq_len, embedding_dim]
         region_word_embeddings = self.region_embedding(word_embeddings)  # [batch_size, seq_len-3+1, 1, num_filter]
         x = self.padding0(region_word_embeddings)  # [batch_size, seq_len, 1, num_filter]
         x = self.conv(self.act_fun(x))  # [batch_size, seq_len-3+1, 1, num_filter]

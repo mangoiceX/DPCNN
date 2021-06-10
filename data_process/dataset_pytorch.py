@@ -3,8 +3,8 @@ Author: xmh
 Date: 2021-06-09 13:11:50
 LastEditors: xmh
 LastEditTime: 2021-06-09 15:29:16
-Description: 
-FilePath: \DPCNN\data_process\dataset_pytorch.py
+Description:
+FilePath: \DPCNN\\data_process\\dataset_pytorch.py
 '''
 
 import torch
@@ -23,19 +23,19 @@ class ModelDataProcessor:
             cnt = 1
             for line in f:
                 line = line.rstrip()
-                self.word_dict[line[0]] = cnt
+                self.word_dict[line] = cnt
                 cnt += 1
 
     def process_file(self, file_name:str):
         setences_list = []
-        # cnt = 0
+        cnt = 0
         with open(file_name, 'r', encoding='Windows-1252') as f:
             for line in f:
                 text = line.rstrip().split()
                 setences_list.append(text)
-                # cnt += 1
-                # if cnt > 20:
-                #     break
+                cnt += 1
+                if cnt > 20:
+                    break
 
         return setences_list
 
@@ -44,11 +44,11 @@ class ModelDataProcessor:
         setences_list_pos = self.process_file(file_name_pos)
         setences_list_neg = self.process_file(file_name_neg)
 
-        # 添加标签
-        for i in range(len(setences_list_pos)):
-            setences_list_pos[i].append(1)
-        for i in range(len(setences_list_neg)):
-            setences_list_neg[i].append(0)
+        # # 添加标签
+        # for i in range(len(setences_list_pos)):
+        #     setences_list_pos[i].append(1)
+        # for i in range(len(setences_list_neg)):
+        #     setences_list_neg[i].append(0)
         setences_list = setences_list_pos + setences_list_neg
         
         labels = [1 for i in range(len(setences_list_pos))] + [0 for i in range(len(setences_list_neg))]
@@ -88,7 +88,7 @@ class ModelDataProcessor:
         
         train_loader = torch.utils.data.DataLoader(
             dataset=train_data,
-             batch_size=config.batch_size,
+            batch_size=config.batch_size,
             collate_fn=train_data.collate_fn,
             shuffle=False,
             drop_last=True
@@ -96,7 +96,7 @@ class ModelDataProcessor:
 
         test_loader = torch.utils.data.DataLoader(
             dataset=test_data,
-             batch_size=config.batch_size,
+            batch_size=config.batch_size,
             collate_fn=test_data.collate_fn,
             shuffle=False,
             drop_last=True
@@ -104,24 +104,26 @@ class ModelDataProcessor:
 
         return train_loader, test_loader
 
-class DataSet(torch.utils.data.DataSet):
+
+class DataSet(torch.utils.data.Dataset):
     
     def __init__(self, data):
-        self.data = copy.eepcopy(data)
+        self.data = copy.deepcopy(data)
     
     def __getitem__(self, index):
         text_origin = self.data['text_origin'][index]
         label = self.data['label'][index]
+        text_ids = self.data['text_ids'][index]
         
         data_info = {}
-        for key in self.data[0].keys():
+        for key in self.data.keys():
             if key in locals():
                 data_info[key] = locals()[key]
         
         return data_info
 
     def __len__(self):
-        return len(self.data)
+        return len(self.data['text_origin'])
     
     def collate_fn(self, data_batch):
 
@@ -134,14 +136,15 @@ class DataSet(torch.utils.data.DataSet):
             
             for i, seq in enumerate(sequences):
                 end = lengths[i]
-                seq = torch.LongTensor(seq)  # 转化为整数 
+                seq = torch.LongTensor(seq)  # 转化为整数
                 if len(seq) != 0:
                     seq_padded[i, :end] = seq[:end]
-                    masked_tokens[i, :end] = tmp_padded[:end]
+                    masked_tokens[i, :end] = tmp_padded[0, :end]
             
             return seq_padded, masked_tokens
         
         item_info = {}  # 对数据按照特征进行聚合
+        print(data_batch)
         for key in data_batch[0].keys():
             item_info[key] = [d[key] for d in data_batch]
         
@@ -152,8 +155,6 @@ class DataSet(torch.utils.data.DataSet):
         else:        
             text_ids = text_ids.contiguous()
             mask_ids = mask_ids.contiguous()
-        
-         
         data_info = {'text_origin': item_info['text_origin']}
         for key in item_info.keys():
             if key in locals():
