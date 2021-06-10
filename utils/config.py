@@ -15,9 +15,17 @@ class Config:
         
         self.embedding_dim = embedding_dim
         self.using_pretrained_embedding = False
-        self.vocab_size = 2000
         self.num_filter = 250
         self.num_rel = 2
-        
-        
-            
+        self.batch_size = 4
+        self.vocab_file = '../data/vocab.txt'
+
+        cnt = 1  # 添加padd的位置
+        with open(self.vocab_file, 'r') as f:
+            for line in f:
+                cnt += 1
+        self.vocab_size = cnt
+        self.epochs = 10
+
+config = Config()
+

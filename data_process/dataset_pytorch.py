@@ -13,10 +13,18 @@ from sklearn.model_selection import train_test_split
 import copy
 
 
-
 class ModelDataProcessor:
     def __init__(self):
-        pass
+        self.get_dict()
+
+    def get_dict(self):
+        self.word_dict = {}
+        with open(config.vocab_file, 'r') as f:
+            cnt = 1
+            for line in f:
+                line = line.rstrip()
+                self.word_dict[line[0]] = cnt
+                cnt += 1
 
     def process_file(self, file_name:str):
         setences_list = []
@@ -62,12 +70,14 @@ class ModelDataProcessor:
         # return X_train, X_test, X_valid, y_train, y_valid, y_test
         return X_train, X_test, y_train, y_test
 
-    def get_data_loader():
+    def get_data_loader(self):
        
         # X_train, X_test, X_valid, y_train, y_valid, y_test = self.get_data()
         X_train, X_test, y_train, y_test = self.get_data()
         # 中间应该还增加对文本的编码
-        train_text_ids, test_text_ids = [], []
+        train_text_ids = [[self.word_dict[word] for word in item] for item in X_train]
+        test_text_ids = [[self.word_dict[word] for word in item] for item in X_test]
+    
         train_data = {'text_origin': X_train, 'label': y_train, 'text_ids': train_text_ids}
         # valid_data = {'text': X_valid, 'label': y_valid}
         test_data = {'text_origin': X_test, 'label': y_test, 'text_ids': test_text_ids}
