@@ -7,6 +7,11 @@ Description: 构建词表
 FilePath: \DPCNN\\utils\make_dict.py
 '''
 
+import os, sys
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__))) # __file__获取执行文件相对路径，整行为取上一级的上一级目录
+sys.path.append(BASE_DIR)
+
 
 def make_dict(file_name_list, vocab_file):
     vocab_dict = {}
