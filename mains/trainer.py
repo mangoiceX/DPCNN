@@ -10,6 +10,7 @@ from tqdm import tqdm
 from modules.dpcnn import DPCNN
 import torch.nn.functional as F
 from data_process.dataset_pytorch import ModelDataProcessor
+import numpy as np
 
 
 class Trainer:
@@ -18,9 +19,10 @@ class Trainer:
                 test_data
     ):
         self.train_data = train_data
+        self.test_data = test_data
 
         self.model = DPCNN()
-
+        self.init_network()
         # 设置优化器
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=config.lr)
         # 学习率调控
@@ -70,31 +72,50 @@ class Trainer:
         correct_total = 0
         for i, data_item in pbar:
             y_predict = self.model(data_item['text_ids'])
+            # y_predict = F.softmax(y_predict, dim=1)
             loss = self.get_loss(y_predict, data_item['label'])
             loss_total += float(loss)
             for i, j in zip(y_predict, data_item['label']):
-                correct_total += (i == j)
+                label_predict = i.argmax(dim=0)
+                correct_total += (label_predict.cpu().numpy() == j.cpu().numpy())
             self.update(loss)
-        loss_total_final = loss_total/len(self.train_data)/config.batch_size
+        loss_total_final = loss_total  # /len(self.train_data)/config.batch_size
         accuracy = correct_total/len(self.train_data)/config.batch_size
         print("train loss: {}, train accuracy: {}".format(loss_total_final, accuracy))
     
     def test(self, epoch):
         print('STARTING TESTING...')
+        self.model.eval()
         pbar = tqdm(enumerate(self.test_data), total=len(self.test_data))
         loss_total = 0.0
         correct_total = 0
         for i, data_item in pbar:
             y_predict = self.model(data_item['text_ids'])
+            y_predict = F.softmax(y_predict, dim=1)
             loss = self.get_loss(y_predict, data_item['label'])
             loss_total += float(loss)
             for i, j in zip(y_predict, data_item['label']):
-                correct_total += (i == j)
-        loss_total_final = loss_total/len(self.test_data)/config.batch_size
+                label_predict = i.argmax(dim=0)
+                correct_total += (label_predict.cpu().numpy() == j.cpu().numpy())
+        loss_total_final = loss_total  # /len(self.test_data)/config.batch_size
         accuracy = correct_total/len(self.test_data)/config.batch_size
         print("test loss: {}, test accuracy: {}".format(loss_total_final, accuracy))
     
-
+    # 权重初始化，默认xavier
+    def init_network(self, method='xavier', exclude='embeddings', seed=123):
+        for name, w in self.model.named_parameters():
+            if exclude not in name:
+                if 'weight' in name:
+                    if method == 'xavier':
+                        nn.init.xavier_normal_(w)
+                    elif method == 'kaiming':
+                        nn.init.kaiming_normal_(w)
+                    else:
+                        nn.init.normal_(w)
+                elif 'bias' in name:
+                    nn.init.constant_(w, 0)
+                else:
+                    pass
 
 if __name__ == "__main__":
 

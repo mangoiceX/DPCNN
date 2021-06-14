@@ -55,7 +55,7 @@ def process_text(text:str, wordnet_lemmatizer)->list:
     text = text.split()
     # text = list(filter(wordnet.synsets, text))  # 这里太慢了
     text = list(filter(lambda x: x in english_dictionary, text))  # 去除词典外的词语
-    text = list(filter(lambda x: x not in stop_words, text))  # 去除停用词
+    # text = list(filter(lambda x: x not in stop_words, text))  # 去除停用词
     text = ' '.join(text)
     tokens = word_tokenize(text)  # 分词
     tagged_sent = pos_tag(tokens)  # 获取单词词性

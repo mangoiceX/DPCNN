@@ -28,14 +28,14 @@ class ModelDataProcessor:
 
     def process_file(self, file_name:str):
         setences_list = []
-        cnt = 0
+        # cnt = 0
         with open(file_name, 'r', encoding='Windows-1252') as f:
             for line in f:
                 text = line.rstrip().split()
                 setences_list.append(text)
-                cnt += 1
-                if cnt > 20:
-                    break
+                # cnt += 1
+                # if cnt > 20:
+                #     break
 
         return setences_list
 
@@ -54,7 +54,7 @@ class ModelDataProcessor:
         labels = [1 for i in range(len(setences_list_pos))] + [0 for i in range(len(setences_list_neg))]
         
         # 制作数据集
-        X_train, X_test, y_train, y_test = train_test_split(setences_list, labels, test_size=0.3, shuffle=True, random_state=0, stratify=labels)
+        X_train, X_test, y_train, y_test = train_test_split(setences_list, labels, test_size=0.2, shuffle=True, random_state=0, stratify=labels)
         # X_test, X_valid, y_valid, y_valid = train_test_split(X_test, y_test, test_size=0.2, shuffle=True, random_state=0, stratify=labels)
 
         # return X_train, X_test, X_valid, y_train, y_valid, y_test
@@ -144,17 +144,20 @@ class DataSet(torch.utils.data.Dataset):
             return seq_padded, masked_tokens
         
         item_info = {}  # 对数据按照特征进行聚合
-        print(data_batch)
+        # print(data_batch)
         for key in data_batch[0].keys():
             item_info[key] = [d[key] for d in data_batch]
         
         text_ids, mask_ids = merge(item_info['text_ids'])
+        label = torch.Tensor(item_info['label']).to(dtype=torch.int64)
         if config.USE_CUDA:
             text_ids = text_ids.contiguous().cuda()
             mask_ids = mask_ids.contiguous().cuda()
+            label = label.contiguous().cuda()
         else:        
             text_ids = text_ids.contiguous()
             mask_ids = mask_ids.contiguous()
+            label = label.contiguous()
         data_info = {'text_origin': item_info['text_origin']}
         for key in item_info.keys():
             if key in locals():

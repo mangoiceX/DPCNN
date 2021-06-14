@@ -27,28 +27,32 @@ class DPCNN(nn.Module):
         self.act_fun = nn.ReLU()
         self.fc = nn.Linear(config.num_filter, config.num_rel)
         self.padding0 = nn.ZeroPad2d((0, 0, 1, 1))
+        self.padding1 = nn.ZeroPad2d((0, 0, 0, 1))  # bottom
         self.pooling = nn.MaxPool2d(kernel_size=(3, 1), stride=2)
 
     def forward(self, data_item):
 
         word_embeddings = self.embeddings(data_item.to(torch.int64))  # [batch_size, seq_len, embedding_dim]
-        region_word_embeddings = self.region_embedding(word_embeddings)  # [batch_size, seq_len-3+1, 1, num_filter]
-        x = self.padding0(region_word_embeddings)  # [batch_size, seq_len, 1, num_filter]
-        x = self.conv(self.act_fun(x))  # [batch_size, seq_len-3+1, 1, num_filter]
-        x = self.padding0(x)  # [batch_size, seq_len, 1, num_filter]
-        x = self.conv(self.act_fun(x))  # 
+        word_embeddings = word_embeddings.unsqueeze(1)  # [batch_size, 1, seq_len, embedding_dim]
+        region_word_embeddings = self.region_embedding(word_embeddings)  # [batch_size, num_filter, seq_len-3+1, 1]
+        x = self.padding0(region_word_embeddings)  # [batch_size, num_filter, seq_len, 1]
+        x = self.conv(self.act_fun(x))  # [batch_size, num_filter, seq_len-3+1, 1]
+        x = self.padding0(x)  # [batch_size, num_filter, seq_len, 1]
+        x = self.conv(self.act_fun(x))  # [batch_size, num_filter, seq_len-3+1, 1]
         x = x + region_word_embeddings  # 残差连接
         
-        while x.size()[2] > 2:  # 知道num_filter的数量减少到1
+        while x.size()[2] >= 2:  # 直到的seq_len数量减少到1
             x = self._block(x)
-        
-        x = x.view(config.batch_size, 2*config.num_filter)  # [batch_size, 2, num_filter, 1]
+        x = x.squeeze()  # [batch_size, num_filter, 1, 1] -> [batch_size, num_filters]
+        # print(x.shape)
+        # x = x.view(config.batch_size, config.num_filter)  # [batch_size, num_class_num]
         x = self.fc(x)
         
         return x
         
     def _block(self, x):
 
+        x = self.padding1(x)
         px = self.pooling(x)  # [batch_size, (seq_len-2-2)/2, 1, num_filter]
 
         # 下面是两个等长卷积模块

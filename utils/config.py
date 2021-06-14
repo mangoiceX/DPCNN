@@ -19,7 +19,7 @@ class Config:
         self.using_pretrained_embedding = False
         self.num_filter = 250
         self.num_rel = 2
-        self.batch_size = 4
+        self.batch_size = 8
         self.vocab_file = '../data/vocab.txt'
 
         cnt = 1  # 添加padd的位置
@@ -27,8 +27,8 @@ class Config:
             for line in f:
                 cnt += 1
         self.vocab_size = cnt
-        self.epochs = 10
-        self.lr = 0.001
+        self.epochs = 100
+        self.lr = 0.005
 
         if torch.cuda.is_available():
             self.USE_CUDA = True
