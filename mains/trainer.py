@@ -24,7 +24,7 @@ class Trainer:
         self.model = DPCNN()
         self.init_network()
         # 设置优化器
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=config.lr)
+        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=config.lr, weight_decay=0.9)  # SGD
         # 学习率调控
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.5, patience=8, min_lr=1e-5, verbose=True)
 
@@ -72,7 +72,7 @@ class Trainer:
         correct_total = 0
         for i, data_item in pbar:
             y_predict = self.model(data_item['text_ids'])
-            # y_predict = F.softmax(y_predict, dim=1)
+            # y_predict = F.softmax(y_predict, dim=1)  # 添加之后会导致预测结果一直为0，更笨没有更新
             loss = self.get_loss(y_predict, data_item['label'])
             loss_total += float(loss)
             for i, j in zip(y_predict, data_item['label']):

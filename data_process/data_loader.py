@@ -117,7 +117,6 @@ if __name__ == '__main__':
     file_name_neg_output = '../data/rt-polaritydata/rt-polarity_processed.neg'
     setences_list_pos, setences_list_neg = process_data(file_name_pos, file_name_neg)
     
-    # print(setences_list_pos[:10])
     with open(file_name_pos_output, 'w') as f:
         for li in setences_list_pos:
             f.write(' '.join(li))
@@ -127,7 +126,10 @@ if __name__ == '__main__':
             f.write(' '.join(li))
             f.write('\n')
     
-    
+
+'''
+去除不在英文词典中的符号与单词
+'''
 
     
 
