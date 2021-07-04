@@ -9,6 +9,7 @@ FilePath: \DPCNN\modules\dpcnn.py
 import torch
 import torch.nn as nn
 from utils.config import config
+# torch.backends.cudnn.enabled = False
 
 
 class DPCNN(nn.Module):
@@ -16,8 +17,10 @@ class DPCNN(nn.Module):
     def __init__(self, pretrained_embedding=None):
         super().__init__()
 
-        if config.using_pretrained_embedding:
-            self.embeddings = nn.Embedding.from_pretrained_embedding(pretrained_embedding, freeze=False)
+        # if config.using_pretrained_embedding:
+        if pretrained_embedding is not None:
+            print("using pretrained_embedding")
+            self.embeddings = nn.Embedding.from_pretrained(torch.FloatTensor(pretrained_embedding), freeze=False)
         else:
             self.embeddings = nn.Embedding(config.vocab_size, config.embedding_dim)
         
@@ -60,6 +63,7 @@ class DPCNN(nn.Module):
         x = self.conv(self.act_fun(x))
         
         x = self.padding0(x)
+        # print(x)
         x = self.conv(self.act_fun(x))
 
         # 残差连接

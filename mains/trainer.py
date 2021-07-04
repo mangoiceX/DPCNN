@@ -11,20 +11,23 @@ from modules.dpcnn import DPCNN
 import torch.nn.functional as F
 from data_process.dataset_pytorch import ModelDataProcessor
 import numpy as np
+from gensim.models import FastText
 
 
 class Trainer:
     def __init__(self,
                 train_data, 
-                test_data
+                test_data, 
+                embedding_pre=None
     ):
         self.train_data = train_data
         self.test_data = test_data
 
-        self.model = DPCNN()
+        self.model = DPCNN(embedding_pre)
         self.init_network()
         # 设置优化器
-        self.optimizer = torch.optim.SGD(self.model.parameters(), lr=config.lr, weight_decay=0.9)  # SGD
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=config.lr) 
+        # self.optimizer = torch.optim.SGD(self.model.parameters(), lr=config.lr, weight_decay=0.9)  # SGD
         # 学习率调控
         self.scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(self.optimizer, factor=0.5, patience=8, min_lr=1e-5, verbose=True)
 
@@ -91,7 +94,7 @@ class Trainer:
         correct_total = 0
         for i, data_item in pbar:
             y_predict = self.model(data_item['text_ids'])
-            y_predict = F.softmax(y_predict, dim=1)
+            # y_predict = F.softmax(y_predict, dim=1)  # 添加之后，预测分类都是0，梯度无法更新
             loss = self.get_loss(y_predict, data_item['label'])
             loss_total += float(loss)
             for i, j in zip(y_predict, data_item['label']):
@@ -117,12 +120,25 @@ class Trainer:
                 else:
                     pass
 
+def get_embed():
+    fname = '../test/fasttext.model'
+    model = FastText.load(fname)
+    embedding_pre = []
+    for word in model.wv.key_to_index:
+        # print(word)
+        embedding_pre.append(model.wv[word])
+    embedding_pre = np.array(embedding_pre)
+    return embedding_pre
+
+
 if __name__ == "__main__":
 
+    embedding_pre = get_embed()
+    print(embedding_pre.shape)
     data_processor = ModelDataProcessor()
     train_data, test_data = data_processor.get_data_loader()
 
-    trainer = Trainer(train_data, test_data)
+    trainer = Trainer(train_data, test_data, embedding_pre)
     trainer.controller()
 
 

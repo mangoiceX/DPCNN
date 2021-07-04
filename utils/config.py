@@ -20,7 +20,7 @@ class Config:
         self.num_filter = 250
         self.num_rel = 2
         self.batch_size = 8
-        self.vocab_file = '../data/vocab.txt'
+        self.vocab_file = '../data/vocab_pretrain.txt'
 
         cnt = 1  # 添加padd的位置
         with open(self.vocab_file, 'r') as f:
