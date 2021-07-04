@@ -51,19 +51,19 @@ def make_dict(model):
 
 
 if __name__ == '__main__':
-    # model = FastText(vector_size=128, window=3, min_count=1)  # instantiate
-    # pos_text = read_sentence('../data/rt-polaritydata/rt-polarity_processed.pos')
-    # neg_text = read_sentence('../data/rt-polaritydata/rt-polarity_processed.neg')
-    # sentences_list = pos_text + neg_text
-    # random.shuffle(sentences_list)
-    # print(len(sentences_list))
-    # model.build_vocab(corpus_iterable=sentences_list)  # MyIter(sentences)
-    # model.train(corpus_iterable=sentences_list, total_examples=len(sentences_list), epochs=10)  # train
+    model = FastText(vector_size=128, window=3, min_count=1)  # instantiate
+    pos_text = read_sentence('../data/rt-polaritydata/rt-polarity_processed.pos')
+    neg_text = read_sentence('../data/rt-polaritydata/rt-polarity_processed.neg')
+    sentences_list = pos_text + neg_text
+    random.shuffle(sentences_list)
+    print(len(sentences_list))
+    model.build_vocab(corpus_iterable=sentences_list)  # MyIter(sentences)
+    model.train(corpus_iterable=sentences_list, total_examples=len(sentences_list), epochs=10)  # train
 
     fname = './fasttext.model'
-    # model.save(fname)
+    model.save(fname)
     model = FastText.load(fname)
     # print(model.wv['silly'])
-    print(model.wv.key_to_index)
+    # print(model.wv.key_to_index)
     make_dict(model)
 

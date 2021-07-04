@@ -20,7 +20,7 @@ class ModelDataProcessor:
     def get_dict(self):
         self.word_dict = {}
         with open(config.vocab_file, 'r') as f:
-            cnt = 1
+            cnt = 0
             for line in f:
                 line = line.rstrip()
                 self.word_dict[line] = cnt
@@ -54,7 +54,7 @@ class ModelDataProcessor:
         labels = [1 for i in range(len(setences_list_pos))] + [0 for i in range(len(setences_list_neg))]
         
         # 制作数据集
-        X_train, X_test, y_train, y_test = train_test_split(setences_list, labels, test_size=0.2, shuffle=True, random_state=0, stratify=labels)
+        X_train, X_test, y_train, y_test = train_test_split(setences_list, labels, test_size=0.3, shuffle=True, random_state=0, stratify=labels)
         # X_test, X_valid, y_valid, y_valid = train_test_split(X_test, y_test, test_size=0.2, shuffle=True, random_state=0, stratify=labels)
 
         # return X_train, X_test, X_valid, y_train, y_valid, y_test
