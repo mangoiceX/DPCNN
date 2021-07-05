@@ -19,7 +19,7 @@ class DPCNN(nn.Module):
         super().__init__()
 
         # if config.using_pretrained_embedding:
-        if pretrained_embedding is not None:
+        if pretrained_embedding is not None and config.using_pretrained_embedding:
             print("using pretrained_embedding")
             self.embeddings = nn.Embedding.from_pretrained(torch.FloatTensor(pretrained_embedding), freeze=False)
         else:

@@ -8,6 +8,7 @@ FilePath: \DPCNN\\utils\\config.py
 '''
 
 import torch
+from utils.arg_config import args
 
 class Config:
 
@@ -16,7 +17,7 @@ class Config:
         ):
         
         self.embedding_dim = embedding_dim
-        self.using_pretrained_embedding = False
+        
         self.num_filter = 128
         self.num_rel = 2
         self.batch_size = 64
@@ -34,6 +35,8 @@ class Config:
             self.USE_CUDA = True
         else:
             self.USE_CUDA = False
+        
+        self.using_pretrained_embedding = args['use_pre_embed']
 
 
 config = Config()
