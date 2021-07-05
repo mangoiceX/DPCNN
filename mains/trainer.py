@@ -97,7 +97,7 @@ class Trainer:
         correct_total = 0
         for i, data_item in pbar:
             y_predict = self.model(data_item['text_ids'])
-            print(y_predict)
+            # print(y_predict)
             # y_predict = F.softmax(y_predict, dim=1)  # 添加之后，预测分类都是0，梯度无法更新
             loss = self.get_loss(y_predict, data_item['label'])
             loss_total += float(loss)

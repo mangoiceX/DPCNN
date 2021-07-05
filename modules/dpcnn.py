@@ -25,7 +25,7 @@ class DPCNN(nn.Module):
         else:
             self.embeddings = nn.Embedding(config.vocab_size, config.embedding_dim)
         
-        si = 5
+        si = 3
         self.region_embedding = nn.Conv2d(1, config.num_filter, (1, config.embedding_dim), stride=1)
         self.conv = nn.Conv2d(config.num_filter, config.num_filter, (si, 1), stride=1)
         self.max_pool = nn.MaxPool2d(kernel_size=(si, 1), stride=2)
@@ -33,7 +33,7 @@ class DPCNN(nn.Module):
         self.fc = nn.Linear(config.num_filter, config.num_rel)
         self.padding0 = nn.ZeroPad2d((0, 0, 1, 1))
         self.padding1 = nn.ZeroPad2d((0, 0, 0, 1))  # bottom
-        self.pooling = nn.MaxPool2d(kernel_size=(si, 1), stride=2)
+        self.pooling = nn.AvgPool2d(kernel_size=(si, 1), stride=2)
 
     def forward(self, data_item):
 
