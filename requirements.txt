@@ -1,3 +1,4 @@
-gensim=4.0.1
-pytorch=1.9.0
-sklearn=0.24.2
+gensim==4.0.1
+pytorch==1.9.0
+cuda==10.2
+sklearn==0.24.2
