@@ -18,9 +18,10 @@ class Config:
         
         self.embedding_dim = embedding_dim
         
-        self.num_filter = 128
+        self.num_filter = 8
+        self.dropout_embedding_rate = 0.5
         self.num_rel = 2
-        self.batch_size = 64
+        self.batch_size = 128
         self.vocab_file = '../data/vocab_pretrain.txt'
 
         cnt = 1  # 添加padd的位置
@@ -32,7 +33,7 @@ class Config:
         self.lr = 1e-3
 
         if torch.cuda.is_available():
-            self.USE_CUDA = True
+            self.USE_CUDA = False
         else:
             self.USE_CUDA = False
         

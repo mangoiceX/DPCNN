@@ -55,6 +55,8 @@ def process_text(text:str, wordnet_lemmatizer)->list:
     text = text.split()
     # text = list(filter(wordnet.synsets, text))  # 这里太慢了
     text = list(filter(lambda x: x in english_dictionary, text))  # 去除词典外的词语
+     # 去除停用词
+    text = remove_stop_words(text, wordnet_lemmatizer)  # 删除之后，单词量大大减少，但是像like这种就不方便区分他只介词还是动词
     # text = list(filter(lambda x: x not in stop_words, text))  # 去除停用词
     text = ' '.join(text)
     tokens = word_tokenize(text)  # 分词
@@ -63,8 +65,7 @@ def process_text(text:str, wordnet_lemmatizer)->list:
     for tag in tagged_sent:
         wordnet_pos = get_wordnet_pos(tag[1]) or wordnet.NOUN
         lemmas_sent.append(wordnet_lemmatizer.lemmatize(tag[0], pos=wordnet_pos))  # 词形还原
-    # 去除停用词
-    # text = remove_stop_words(text, wordnet_lemmatizer)  # 删除之后，单词量大大减少，但是像like这种就不方便区分他只介词还是动词
+   
     
     return lemmas_sent
 

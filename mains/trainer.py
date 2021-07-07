@@ -109,9 +109,9 @@ class Trainer:
         print("test loss: {}, test accuracy: {}".format(loss_total_final, accuracy))
     
     # 权重初始化，默认xavier
-    def init_network(self, method='xavier', exclude='embeddings', seed=123):
+    def init_network(self, method='xavier', exclude=['embeddings', 'batch_normer'], seed=123):
         for name, w in self.model.named_parameters():
-            if exclude not in name:
+            if exclude[0] and exclude[1] not in name:
                 if 'weight' in name:
                     if method == 'xavier':
                         nn.init.xavier_normal_(w)
@@ -144,5 +144,6 @@ if __name__ == "__main__":
 
     trainer = Trainer(train_data, test_data, embedding_pre)
     trainer.controller()
+    
 
 
