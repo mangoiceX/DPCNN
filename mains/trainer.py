@@ -76,13 +76,10 @@ class Trainer:
         for i, data_item in pbar:
             y_predict = self.model(data_item['text_ids'])
             # y_predict = F.softmax(y_predict, dim=1)  # 添加之后会导致预测结果一直为0，更笨没有更新
-            # print(y_predict)
             loss = self.get_loss(y_predict, data_item['label'])
-            # print(loss)
             loss_total += float(loss)
             for i, j in zip(y_predict, data_item['label']):
                 label_predict = i.argmax(dim=0)
-                # print(label_predict)
                 correct_total += (label_predict.cpu().numpy() == j.cpu().numpy())
             self.update(loss)
         loss_total_final = loss_total  # /len(self.train_data)/config.batch_size
@@ -97,8 +94,7 @@ class Trainer:
         correct_total = 0
         for i, data_item in pbar:
             y_predict = self.model(data_item['text_ids'])
-            # print(y_predict)
-            # y_predict = F.softmax(y_predict, dim=1)  # 添加之后，预测分类都是0，梯度无法更新
+
             loss = self.get_loss(y_predict, data_item['label'])
             loss_total += float(loss)
             for i, j in zip(y_predict, data_item['label']):
@@ -137,8 +133,9 @@ def get_embed():
 
 if __name__ == "__main__":
 
-    embedding_pre = get_embed()
-    print(embedding_pre.shape)
+    # embedding_pre = get_embed()
+    # print(embedding_pre.shape)
+    embedding_pre = None
     data_processor = ModelDataProcessor()
     train_data, test_data = data_processor.get_data_loader()
 
