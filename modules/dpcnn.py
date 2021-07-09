@@ -36,6 +36,7 @@ class DPCNN(nn.Module):
         self.pooling = nn.AvgPool2d(kernel_size=(si, 1), stride=2)
         self.batch_normer1 = nn.BatchNorm2d(1)
         self.batch_normer2 = nn.BatchNorm2d(config.num_filter)
+        self.att_layer = AttentionLayer(config.num_filter)
 
     def forward(self, data_item):
 
@@ -44,12 +45,13 @@ class DPCNN(nn.Module):
         word_embeddings = word_embeddings.unsqueeze(1)  # [batch_size, 1, seq_len, embedding_dim]
         word_embeddings = self.batch_normer1(word_embeddings)
         region_word_embeddings = self.region_embedding(word_embeddings)  # [batch_size, num_filter, seq_len-3+1, 1]
-        region_word_embeddings = self.batch_normer2(region_word_embeddings)
+        
         x = self.padding0(region_word_embeddings)  # [batch_size, num_filter, seq_len, 1]
         x = self.conv(self.act_fun(x))  # [batch_size, num_filter, seq_len-3+1, 1]
+        
         x = self.padding0(x)  # [batch_size, num_filter, seq_len, 1]
-        x = self.batch_normer2(x)
         x = self.conv(self.act_fun(x))  # [batch_size, num_filter, seq_len-3+1, 1]
+        region_word_embeddings = self.att_layer(region_word_embeddings)
         x = x + region_word_embeddings  # 残差连接
         
         while x.size()[-2] >= 2:  # 直到的seq_len数量减少到1
@@ -59,6 +61,7 @@ class DPCNN(nn.Module):
         # print(x.shape)
         # x = x.view(config.batch_size, config.num_filter)  # [batch_size, num_class_num]
         x = self.fc(x)
+        # x = self.act_fun(x)
         
         return x
         
@@ -80,7 +83,25 @@ class DPCNN(nn.Module):
     
         return x
         
-
+class AttentionLayer(nn.Module):
+    def __init__(self, channel, reduction=16, multiply=True):
+        super(AttentionLayer, self).__init__()
+        self.avg_pool = nn.AdaptiveAvgPool2d(1)
+        self.fc = nn.Sequential(
+                nn.Linear(channel, channel // reduction),
+                nn.ReLU(inplace=True),
+                nn.Linear(channel // reduction, channel),
+                nn.Sigmoid()
+                )
+        self.multiply = multiply
+    def forward(self, x):
+        b, c, _, _ = x.size()
+        y = self.avg_pool(x).view(b, c)
+        y = self.fc(y).view(b, c, 1, 1)
+        if self.multiply == True:
+            return x * y
+        else:
+            return y
 
         
         
